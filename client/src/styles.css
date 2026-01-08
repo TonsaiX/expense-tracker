@@ -98,7 +98,6 @@
   --sparkle-opacity: .10;
 }
 
-/* ✅ Minimal (Light) */
 /* =========================================================
    Minimal Theme — Pure White / Black / Gray
 ========================================================= */
@@ -149,6 +148,7 @@
   /* No sparkle */
   --sparkle-opacity: 0;
 }
+
 
 
 
