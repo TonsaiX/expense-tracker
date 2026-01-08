@@ -1,0 +1,449 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   FULL THEME SWITCH: variables + global overrides
+========================================================= */
+
+/* =========================================================
+   CUTE THEME 🌸💗 (SUPER PINK MODE)
+========================================================= */
+
+/* =========================================================
+   THEME VARIABLES (EXPLICIT 3 THEMES)
+   Cute / Dark / Minimal (light)
+========================================================= */
+
+/* ✅ Cute (PINK MODE) */
+/* =========================================================
+   THEME VARIABLES (FIX MIXED THEME BUG)
+   ✅ Cute = default :root
+========================================================= */
+
+/* ✅ Cute (default + explicit cute) */
+:root,
+:root[data-theme="cute"] {
+  color-scheme: light;
+
+  --bg-base: rgb(255 240 246);
+
+  --bg-a: rgba(251, 182, 206, .65);
+  --bg-b: rgba(244, 114, 182, .45);
+  --bg-c: rgba(216, 180, 254, .40);
+  --bg-d: rgba(251, 207, 232, .55);
+
+  --text: rgba(60, 9, 30, .92);
+  --muted: rgba(136, 19, 55, .55);
+
+  --border: rgba(244, 114, 182, .35);
+
+  --surface: rgba(255,255,255,.82);
+  --surface-strong: rgba(255,255,255,.95);
+  --surface-deep: rgba(255,245,250,.92);
+  --surface-deeper: rgba(255,245,250,.98);
+
+  --shadow: 0 12px 28px rgba(244, 114, 182, .28);
+  --glow: 0 0 0 1px rgba(244, 114, 182, .22),
+          0 22px 60px rgba(244, 114, 182, .35);
+
+  --accent: rgba(236, 72, 153, 1);
+  --good: rgba(34, 197, 94, 1);
+  --bad: rgba(244, 63, 94, 1);
+  --warn: rgba(234, 179, 8, 1);
+
+  --accent-soft: rgba(236, 72, 153, .30);
+  --good-soft: rgba(34, 197, 94, .16);
+  --bad-soft: rgba(244, 63, 94, .22);
+  --warn-soft: rgba(234, 179, 8, .18);
+
+  --sparkle-opacity: .35;
+}
+
+/* ✅ Dark */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-base: rgb(2 6 23);
+
+  --bg-a: rgba(56, 189, 248, .16);
+  --bg-b: rgba(99, 102, 241, .14);
+  --bg-c: rgba(34, 197, 94, .10);
+  --bg-d: rgba(148, 163, 184, .05);
+
+  --text: rgba(248,250,252,.96);
+  --muted: rgba(148,163,184,.80);
+
+  --border: rgba(255,255,255,.10);
+
+  --surface: rgba(255,255,255,.05);
+  --surface-strong: rgba(255,255,255,.08);
+  --surface-deep: rgba(2,6,23,.45);
+  --surface-deeper: rgba(2,6,23,.78);
+
+  --shadow: 0 12px 34px rgba(0,0,0,.42);
+  --glow: 0 0 0 1px rgba(255,255,255,.08),
+          0 18px 55px rgba(0,0,0,.55);
+
+  --accent: rgba(99, 102, 241, 1);
+  --good: rgba(52, 211, 153, 1);
+  --bad: rgba(251, 113, 133, 1);
+  --warn: rgba(253, 230, 138, 1);
+
+  --accent-soft: rgba(99, 102, 241, .16);
+  --good-soft: rgba(52, 211, 153, .16);
+  --bad-soft: rgba(251, 113, 133, .16);
+  --warn-soft: rgba(253, 230, 138, .18);
+
+  --sparkle-opacity: .10;
+}
+
+/* ✅ Minimal (Light) */
+/* =========================================================
+   Minimal Theme — Pure White / Black / Gray
+========================================================= */
+
+:root[data-theme="minimal"] {
+  color-scheme: light;
+
+  /* Base background */
+  --bg-base: rgb(250 250 250); /* near-white */
+
+  /* subtle background layers (แทบไม่เห็นสี) */
+  --bg-a: rgba(0, 0, 0, 0.02);
+  --bg-b: rgba(0, 0, 0, 0.03);
+  --bg-c: rgba(0, 0, 0, 0.04);
+  --bg-d: rgba(0, 0, 0, 0.05);
+
+  /* Text */
+  --text: rgba(17, 24, 39, 0.95);   /* almost black */
+  --muted: rgba(55, 65, 81, 0.65);  /* gray-600 */
+
+  /* Borders */
+  --border: rgba(17, 24, 39, 0.12);
+
+  /* Surfaces / cards */
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --surface-deep: rgba(255, 255, 255, 0.96);
+  --surface-deeper: rgba(255, 255, 255, 0.98);
+
+  /* Shadows (very subtle) */
+  --shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --glow: 0 0 0 1px rgba(0, 0, 0, 0.05),
+          0 12px 28px rgba(0, 0, 0, 0.08);
+
+  /* Accent → ใช้แค่ “ดำ” */
+  --accent: rgba(17, 24, 39, 1);   /* black */
+  --accent-soft: rgba(17, 24, 39, 0.10);
+
+  /* Status colors (ลดความสด) */
+  --good: rgba(22, 163, 74, 0.85);
+  --bad: rgba(185, 28, 28, 0.85);
+  --warn: rgba(161, 98, 7, 0.85);
+
+  --good-soft: rgba(22, 163, 74, 0.12);
+  --bad-soft: rgba(185, 28, 28, 0.12);
+  --warn-soft: rgba(161, 98, 7, 0.12);
+
+  /* No sparkle */
+  --sparkle-opacity: 0;
+}
+
+
+
+
+/* ✅ สำคัญ: ให้ “พื้นหลังสุดหลัง” เปลี่ยนตามธีมด้วย */
+html, body, #root {
+  height: 100%;
+}
+
+/* ✅ html มีพื้นหลังของตัวเอง (นี่แหละที่เป็น backmost) */
+html {
+  background-color: var(--bg-base);
+}
+
+/* body ก็ต้องตั้งพื้นหลัง + กันโปร่ง */
+body {
+  background-color: var(--bg-base);
+  color: var(--text);
+  position: relative;
+}
+
+/* ภาพพื้นหลังแบบ gradient วางบน body */
+body{
+  background:
+    radial-gradient(900px 520px at 12% 0%, var(--bg-a), transparent 60%),
+    radial-gradient(900px 520px at 88% 10%, var(--bg-b), transparent 60%),
+    radial-gradient(900px 520px at 45% 95%, var(--bg-c), transparent 55%),
+    radial-gradient(700px 420px at 70% 75%, var(--bg-d), transparent 60%),
+    var(--bg-base);
+}
+
+/* Sparkle overlay */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--sparkle-opacity);
+  background-image: radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mix-blend-mode: screen;
+}
+
+/* ✅ root ต้องโปร่ง ไม่ทับพื้นหลัง */
+#root {
+  background: transparent;
+}
+
+/* Scrollbar */
+*::-webkit-scrollbar { height: 10px; width: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(100,116,139,.25); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,.35); }
+*::-webkit-scrollbar-track { background: rgba(148,163,184,.15); }
+
+/* Theme-aware utilities */
+@layer utilities {
+  .glass-card {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--glow);
+    backdrop-filter: blur(16px);
+    border-radius: 1.5rem;
+  }
+  .glass-panel {
+    border: 1px solid var(--border);
+    background: var(--surface-deep);
+    border-radius: 1.25rem;
+  }
+  .glass-chip {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 999px;
+  }
+  .glass-btn {
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+}
+
+/* GLOBAL OVERRIDES (ทำให้ทั้งเว็บเปลี่ยนสีตามธีม) */
+.text-slate-50,
+.text-slate-100,
+.text-slate-200,
+.text-slate-300,
+.text-white { color: var(--text) !important; }
+
+.text-slate-400,
+.text-slate-500 { color: var(--muted) !important; }
+
+.text-emerald-100,
+.text-emerald-200 { color: var(--good) !important; }
+
+.text-rose-100,
+.text-rose-200 { color: var(--bad) !important; }
+
+.text-sky-200,
+.text-sky-300 { color: var(--accent) !important; }
+
+.border-white\/10,
+.border-white\/12,
+.border-slate-800\/70,
+.border-slate-800,
+.border-slate-900 { border-color: var(--border) !important; }
+
+.bg-white\/5,
+.bg-white\/7,
+.bg-white\/10,
+.bg-white\/12,
+.bg-slate-900\/30,
+.bg-slate-950\/20,
+.bg-slate-950\/30,
+.bg-slate-950\/40 { background-color: var(--surface) !important; }
+
+.bg-slate-950\/55,
+.bg-slate-950\/60,
+.bg-slate-950\/70,
+.bg-slate-950\/80 { background-color: var(--surface-deeper) !important; }
+
+.bg-slate-950\/30 { background-color: var(--surface-deep) !important; }
+
+.divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+/* Smooth theme transitions */
+html, body, #root,
+* {
+  transition:
+    background-color .18s ease,
+    color .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease;
+}
+
+/* ✅ HARD LOCK: backmost background must follow theme */
+html {
+  background: var(--bg-base) !important;
+  background-color: var(--bg-base) !important;
+}
+
+body {
+  background-color: var(--bg-base) !important;
+}
+
+/* gradient background on body (still uses theme vars) */
+body{
+  background:
+    radial-gradient(900px 520px at 12% 0%, var(--bg-a), transparent 60%),
+    radial-gradient(900px 520px at 88% 10%, var(--bg-b), transparent 60%),
+    radial-gradient(900px 520px at 45% 95%, var(--bg-c), transparent 55%),
+    radial-gradient(700px 420px at 70% 75%, var(--bg-d), transparent 60%),
+    var(--bg-base) !important;
+}
+
+/* ✅ root must not paint its own background */
+#root {
+  background: transparent !important;
+}
+
+/* =========================================================
+   FIX DROPDOWN / SELECT CONTRAST (especially cute theme)
+========================================================= */
+
+/* native select */
+select {
+  background-color: var(--surface-strong) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* option inside dropdown */
+select option {
+  background-color: #fff !important;
+  color: #111827 !important; /* slate-900 */
+}
+
+/* focus state */
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* -----------------------------
+   Custom dropdowns / menus
+   (HeadlessUI / Radix / custom div)
+----------------------------- */
+.dropdown-menu,
+.menu,
+[role="menu"],
+[role="listbox"] {
+  background-color: var(--surface-deeper) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--glow);
+}
+
+/* dropdown item */
+.dropdown-item,
+[role="menuitem"],
+[role="option"] {
+  color: var(--text) !important;
+}
+
+/* hover / active */
+.dropdown-item:hover,
+[role="menuitem"]:hover,
+[role="option"]:hover {
+  background-color: var(--accent-soft) !important;
+  color: var(--text) !important;
+}
+
+/* =========================================================
+   THEME SWITCH DROPDOWN – BETTER CONTRAST
+========================================================= */
+
+/* กล่อง dropdown เปลี่ยนธีม (Navbar) */
+.theme-dropdown,
+.theme-dropdown.glass-card {
+  background-color: color-mix(
+    in srgb,
+    var(--surface-deeper) 92%,
+    white
+  ) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--glow);
+  backdrop-filter: blur(18px);
+}
+
+/* item ใน dropdown */
+.theme-dropdown button {
+  color: var(--text) !important;
+}
+
+/* hover item */
+.theme-dropdown button:hover {
+  background-color: var(--accent-soft) !important;
+}
+
+/* badge "ใช้แล้ว" */
+.theme-dropdown .active-badge {
+  color: var(--accent) !important;
+}
+
+/* =========================================================
+   Date input calendar icon visibility (Cute theme)
+========================================================= */
+
+/* ทำให้ input date สวยและอ่านชัดในทุกธีม */
+input[type="date"]{
+  background-color: var(--surface-strong) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* ✅ Chrome/Edge/Safari: ปรับ icon calendar ให้เข้มขึ้นในธีม light (cute/minimal) */
+/* =========================================================
+   FIX: Date input calendar icon (Cute/Minimal)
+   - Make icon visible on light/pink backgrounds
+========================================================= */
+
+input[type="date"]{
+  background-color: var(--surface-strong) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+
+  /* เผื่อพื้นที่ให้ icon ปฏิทินด้านขวา */
+  padding-right: 44px !important;
+
+  /* ช่วยให้ browser ไม่เลือกสี icon แปลก ๆ */
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+
+/* ✅ Chrome/Edge/Safari: ทำให้ icon ชัด (ไม่ invert) */
+:root[data-theme="cute"] input[type="date"]::-webkit-calendar-picker-indicator,
+:root[data-theme="minimal"] input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1 !important;
+  /* ทำให้ไอคอนเข้มขึ้น */
+  filter: brightness(0.25) contrast(1.4) saturate(1.2) !important;
+  cursor: pointer;
+}
+
+/* ✅ Dark theme: ให้ไอคอนสว่างขึ้น */
+:root[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1 !important;
+  filter: brightness(1.6) contrast(1.2) saturate(1.1) !important;
+  cursor: pointer;
+}
+
+/* Focus state */
+input[type="date"]:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: var(--accent);
+}
