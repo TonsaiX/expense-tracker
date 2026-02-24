@@ -18,7 +18,7 @@ function NavItem({ to, children }) {
         )
       }
     >
-      {children}  // แสดงเนื้อหาของเมนู
+      {children}
     </NavLink>
   );
 }
@@ -35,7 +35,7 @@ function MobileItem({ to, label }) {
         )
       }
     >
-      {label}  // แสดงชื่อของเมนู
+      {label}
     </NavLink>
   );
 }
