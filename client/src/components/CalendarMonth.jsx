@@ -1,50 +1,58 @@
 import React, { useMemo, useState } from "react";
 import { fmtMoney, toISODate } from "../api.js";
 
+// ฟังก์ชันเพื่อหาวันที่ 1 ของเดือนจากวันที่ที่ให้มา
 function startOfMonth(d) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
+
+// ฟังก์ชันเพื่อหาวันเริ่มต้นของปฏิทิน (จากวันแรกของเดือน และเลื่อนไปข้างหลังให้เริ่มต้นที่วันจันทร์)
 function startOfCalendarGrid(monthDate) {
   const s = startOfMonth(monthDate);
-  const day = s.getDay(); // 0 Sun..6 Sat
-  const diff = (day + 6) % 7; // Monday=0
+  const day = s.getDay(); // 0 = อาทิตย์, 1 = จันทร์, ..., 6 = เสาร์
+  const diff = (day + 6) % 7; // เพื่อให้จันทร์เป็นวันแรก
   const out = new Date(s);
   out.setDate(s.getDate() - diff);
   return out;
 }
 
 export default function CalendarMonth({ monthDate, daysData }) {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null); // สถานะวันที่ที่เลือก
 
+  // สร้างแผนที่ที่เก็บข้อมูลธุรกรรมในแต่ละวัน
   const map = useMemo(() => {
     const m = new Map();
     for (const d of daysData || []) m.set(d.date, d.items);
     return m;
   }, [daysData]);
 
+  // คำนวณวันเริ่มต้นของปฏิทินจากเดือนที่กำหนด
   const gridStart = useMemo(() => startOfCalendarGrid(monthDate), [monthDate]);
 
+  // สร้างกริดของวันที่ในเดือนนั้นๆ โดยคำนวณจากวันเริ่มต้นที่ได้จาก gridStart
   const grid = useMemo(() => {
     const cells = [];
-    const d = new Date(gridStart);
-    for (let i = 0; i < 42; i++) {
-      const iso = toISODate(d);
-      const inMonth = d.getMonth() === monthDate.getMonth();
-      const items = map.get(iso) ?? [];
-      const income = items.filter(x => x.type === "income").reduce((s, x) => s + x.amount, 0);
-      const expense = items.filter(x => x.type === "expense").reduce((s, x) => s + x.amount, 0);
+    const d = new Date(gridStart); // เริ่มจากวันเริ่มต้น
+    for (let i = 0; i < 42; i++) { // สร้างวันที่ทั้งหมด 42 วัน (6 แถวในปฏิทิน)
+      const iso = toISODate(d); // แปลงวันเป็นรูปแบบ ISO
+      const inMonth = d.getMonth() === monthDate.getMonth(); // ตรวจสอบว่าเป็นเดือนที่เลือกหรือไม่
+      const items = map.get(iso) ?? []; // รับรายการธุรกรรมในวันนั้น
+      const income = items.filter(x => x.type === "income").reduce((s, x) => s + x.amount, 0); // หารายรับในวันนั้น
+      const expense = items.filter(x => x.type === "expense").reduce((s, x) => s + x.amount, 0); // หารายจ่ายในวันนั้น
 
+      // เพิ่มข้อมูลลงในกริด
       cells.push({ iso, day: d.getDate(), inMonth, items, income, expense });
-      d.setDate(d.getDate() + 1);
+      d.setDate(d.getDate() + 1); // เปลี่ยนไปยังวันถัดไป
     }
     return cells;
   }, [gridStart, monthDate, map]);
 
+  // กรองข้อมูลรายการธุรกรรมที่เลือกวันที่
   const selectedItems = selected ? (map.get(selected) ?? []) : [];
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-      {/* Calendar */}
+      {/* ปฏิทิน */}
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 shadow-glow backdrop-blur-xl">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -58,25 +66,25 @@ export default function CalendarMonth({ monthDate, daysData }) {
         </div>
 
         <div className="grid grid-cols-7 gap-2 text-xs text-slate-400">
+          {/* วันในสัปดาห์ */}
           {["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"].map((x) => (
             <div key={x} className="px-1 py-1 text-center">{x}</div>
           ))}
         </div>
 
-        {/* Mobile: ลดความแน่นด้วย padding/ตัวเลข/ซ่อนข้อความบางส่วน */}
+        {/* แสดงปฏิทินวันแต่ละวัน */}
         <div className="mt-2 grid grid-cols-7 gap-2">
           {grid.map((c) => {
-            const has = c.items.length > 0;
-            const isSelected = selected === c.iso;
+            const has = c.items.length > 0; // เช็คว่ามีรายการในวันนั้นหรือไม่
+            const isSelected = selected === c.iso; // เช็คว่าเลือกวันนั้นหรือไม่
 
             return (
               <button
                 key={c.iso}
-                onClick={() => setSelected(c.iso)}
+                onClick={() => setSelected(c.iso)} // คลิกเลือกวัน
                 className={[
                   "group relative overflow-hidden rounded-2xl border text-left transition",
                   "focus:outline-none focus:ring-2 focus:ring-sky-500/40",
-                  // mobile padding smaller, desktop bigger
                   "p-2 sm:p-3",
                   c.inMonth ? "border-white/10 bg-slate-950/40" : "border-white/5 bg-slate-950/20 opacity-60",
                   isSelected ? "ring-2 ring-sky-500/30" : "hover:bg-white/[0.06]"
@@ -95,9 +103,9 @@ export default function CalendarMonth({ monthDate, daysData }) {
                   )}
                 </div>
 
+                {/* แสดงยอดรายรับและรายจ่าย */}
                 {has ? (
                   <div className="mt-2 space-y-1 text-[10px] sm:text-[11px]">
-                    {/* มือถือ: แสดงแค่ยอดรวม (compact) / เดสก์ท็อป: แสดง label + money */}
                     {c.income > 0 ? (
                       <div className="text-emerald-200">
                         <span className="hidden sm:inline">รับ </span>
@@ -120,7 +128,7 @@ export default function CalendarMonth({ monthDate, daysData }) {
         </div>
       </div>
 
-      {/* Side panel (บนมือถือจะอยู่ด้านล่างโดยอัตโนมัติ เพราะไม่เข้า lg grid column) */}
+      {/* Side panel แสดงรายละเอียดวัน */}
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 shadow-glow backdrop-blur-xl">
         <div className="flex items-start justify-between gap-3">
           <div>

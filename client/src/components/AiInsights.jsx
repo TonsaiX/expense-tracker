@@ -1,31 +1,37 @@
 import React, { useMemo } from "react";
 import { fmtMoney } from "../api.js";
 
+// ฟังก์ชันที่ใช้สำหรับรวมคลาสที่ใช้ในหลายๆ ที่
 function cls(...a) {
   return a.filter(Boolean).join(" ");
 }
 
+// ฟังก์ชันสำหรับแสดงเปอร์เซ็นต์
 function pct(v) {
   if (v === null || v === undefined) return "—";
-  return `${(v * 100).toFixed(0)}%`;
+  return `${(v * 100).toFixed(0)}%`; // คืนค่าผลลัพธ์เป็นเปอร์เซ็นต์
 }
 
 export default function AiInsights({ data }) {
+  // ดึงข้อมูล verdict จาก ai data และตั้งค่าเริ่มต้นเป็น "neutral"
   const verdict = data?.ai?.verdict ?? "neutral";
 
+  // ใช้ useMemo เพื่อคำนวณค่าของ badge ที่จะนำไปใช้ในคอมโพเนนต์
   const badge = useMemo(() => {
     if (verdict === "good") return "border-emerald-400/25 bg-emerald-500/10 text-emerald-100";
     if (verdict === "risk") return "border-rose-400/25 bg-rose-500/10 text-rose-100";
     return "border-white/10 bg-white/5 text-slate-200";
   }, [verdict]);
 
+  // ใช้ useMemo เพื่อคำนวณสีของคะแนนสุขภาพการเงิน
   const scoreColor = useMemo(() => {
     const s = data?.ai?.score ?? 0;
-    if (s >= 70) return "text-emerald-200";
-    if (s <= 40) return "text-rose-200";
-    return "text-sky-200";
+    if (s >= 70) return "text-emerald-200"; // ถ้าคะแนนมากกว่าหรือเท่ากับ 70 ให้ใช้สีเขียว
+    if (s <= 40) return "text-rose-200"; // ถ้าคะแนนน้อยกว่าหรือเท่ากับ 40 ให้ใช้สีแดง
+    return "text-sky-200"; // ถ้าคะแนนระหว่าง 41 - 69 ให้ใช้สีฟ้า
   }, [data]);
 
+  // ดึงข้อมูลการเปรียบเทียบค่าใช้จ่ายและรายรับกับค่าเฉลี่ย
   const expenseVsAvg = data?.baseline?.expenseVsAvg ?? null;
   const incomeVsAvg = data?.baseline?.incomeVsAvg ?? null;
 
@@ -43,6 +49,7 @@ export default function AiInsights({ data }) {
             </div>
           </div>
 
+          {/* แสดงข้อความจาก AI */}
           <div className={cls("rounded-full border px-3 py-1 text-[11px] font-extrabold", badge)}>
             {data?.ai?.message ?? "—"}
           </div>
@@ -78,6 +85,7 @@ export default function AiInsights({ data }) {
             <div className="text-xs text-slate-400">เทียบค่าเฉลี่ย 3 เดือนก่อนหน้า</div>
 
             <div className="mt-3 space-y-2 text-sm">
+              {/* รายจ่ายเปรียบเทียบค่าเฉลี่ย */}
               <div className="flex items-center justify-between gap-4">
                 <span className="text-slate-300">รายจ่าย (คาดการณ์)</span>
                 <span
@@ -96,6 +104,7 @@ export default function AiInsights({ data }) {
                 </span>
               </div>
 
+              {/* รายรับเปรียบเทียบค่าเฉลี่ย */}
               <div className="flex items-center justify-between gap-4">
                 <span className="text-slate-300">รายรับ (คาดการณ์)</span>
                 <span
@@ -120,6 +129,7 @@ export default function AiInsights({ data }) {
             </div>
           </div>
 
+          {/* Short recommendations */}
           <div className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="text-xs text-slate-400">คำแนะนำสั้น ๆ</div>
 

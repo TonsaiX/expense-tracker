@@ -1,18 +1,27 @@
-import React, { useMemo, useState } from "react";
-import { api, fmtMoney, toISODate } from "../api.js";
+import React, { useMemo, useState } from "react"; // นำเข้า React และ hook ที่จำเป็น
+import { api, fmtMoney, toISODate } from "../api.js"; // นำเข้าฟังก์ชันที่ใช้ในการจัดการ API และการแสดงผล
 
+// ฟังก์ชันช่วยเพื่อให้ได้วันที่ในรูปแบบ ISO (YYYY-MM-DD)
 function todayISO() {
-  return toISODate(new Date());
+  return toISODate(new Date()); // คืนค่าวันนี้ในรูปแบบ ISO
 }
-function cls(...a) { return a.filter(Boolean).join(" "); }
 
+// ฟังก์ชันช่วยสำหรับการรวม classNames
+function cls(...a) {
+  return a.filter(Boolean).join(" "); // รวม classNames ที่ไม่เป็นค่าว่าง
+}
+
+// หมวดหมู่ค่าใช้จ่ายและรายรับที่กำหนดไว้ล่วงหน้า
 const DEFAULT_CATEGORIES = {
   expense: ["อาหาร", "เดินทาง", "ช้อปปิ้ง", "บิล/ค่าน้ำไฟ", "สุขภาพ", "บันเทิง", "การศึกษา", "อื่นๆ"],
   income: ["เงินเดือน", "รายได้เสริม", "โบนัส", "ของขวัญ", "คืนเงิน", "อื่นๆ"]
 };
 
+// คอมโพเนนต์สำหรับการแสดง Toast Notification
 function Toast({ show, tone = "ok", title, message, onClose }) {
-  if (!show) return null;
+  if (!show) return null; // ถ้าไม่แสดง toast ก็จะ return null ออกไป
+
+  // การเลือกคลาสสีตาม tone
   const toneCls =
     tone === "ok"
       ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
@@ -28,7 +37,7 @@ function Toast({ show, tone = "ok", title, message, onClose }) {
               <div className="mt-1 text-sm opacity-90">{message}</div>
             </div>
             <button
-              onClick={onClose}
+              onClick={onClose} // เมื่อปิด Toast
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-white/90 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
             >
               ปิด
@@ -41,30 +50,35 @@ function Toast({ show, tone = "ok", title, message, onClose }) {
 }
 
 export default function Entry() {
-  const [type, setType] = useState("expense");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [occurredOn, setOccurredOn] = useState(todayISO());
-  const [note, setNote] = useState("");
+  // สถานะต่างๆ ของฟอร์ม
+  const [type, setType] = useState("expense"); // ชนิดของรายการ (รายรับ/รายจ่าย)
+  const [amount, setAmount] = useState(""); // จำนวนเงิน
+  const [category, setCategory] = useState(""); // หมวดหมู่
+  const [occurredOn, setOccurredOn] = useState(todayISO()); // วันที่ของรายการ
+  const [note, setNote] = useState(""); // หมายเหตุ
 
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState({ show: false, tone: "ok", title: "", message: "" });
+  const [saving, setSaving] = useState(false); // ใช้เพื่อบอกสถานะการบันทึก
+  const [toast, setToast] = useState({ show: false, tone: "ok", title: "", message: "" }); // สถานะ Toast
 
+  // หมวดหมู่ที่รวบรวมมาให้ตามประเภท (รายจ่าย/รายรับ)
   const quickCats = useMemo(() => DEFAULT_CATEGORIES[type], [type]);
 
+  // แปลงจำนวนเงินที่รับมาจาก input เป็นตัวเลข
   const parsedAmount = useMemo(() => {
     const n = Number(amount);
     return Number.isFinite(n) ? n : 0;
   }, [amount]);
 
+  // ฟังก์ชันสำหรับแสดงผล Toast
   function showToast(tone, title, message) {
     setToast({ show: true, tone, title, message });
-    window.clearTimeout(window.__toastTimer);
+    window.clearTimeout(window.__toastTimer); // ลบ timeout ที่ใช้ก่อนหน้า
     window.__toastTimer = window.setTimeout(() => {
-      setToast((x) => ({ ...x, show: false }));
+      setToast((x) => ({ ...x, show: false })); // ซ่อน Toast หลังจาก 2.6 วินาที
     }, 2600);
   }
 
+  // ฟังก์ชันสำหรับเช็คการเกินงบ
   async function checkBudgetAlert(monthKey) {
     try {
       const r = await api.get("/api/budgets/status", { params: { month: monthKey } });
@@ -77,17 +91,18 @@ export default function Entry() {
         );
       }
     } catch {
-      // ไม่ต้อง toast ถ้าเช็คงบพลาด
+      // ไม่ต้องแสดง toast ถ้าเช็คงบพลาด
     }
   }
 
+  // ฟังก์ชันสำหรับการบันทึกข้อมูลรายการ
   async function onSubmit(e) {
-    e.preventDefault();
+    e.preventDefault(); // หยุดการส่งฟอร์มแบบปกติ
     if (!category.trim()) return showToast("err", "กรอกไม่ครบ", "กรุณาใส่หมวดหมู่");
     if (!amount || parsedAmount <= 0) return showToast("err", "จำนวนเงินไม่ถูกต้อง", "จำนวนเงินต้องมากกว่า 0");
     if (!occurredOn) return showToast("err", "กรอกไม่ครบ", "กรุณาเลือกวันที่");
 
-    setSaving(true);
+    setSaving(true); // กำลังบันทึก
     try {
       const payload = {
         type,
@@ -97,29 +112,30 @@ export default function Entry() {
         occurredOn
       };
 
-      await api.post("/api/transactions", payload);
+      await api.post("/api/transactions", payload); // ส่งข้อมูลไปยัง API
 
       showToast("ok", "บันทึกสำเร็จ", `${type === "income" ? "รายรับ" : "รายจ่าย"} ${fmtMoney(parsedAmount)} • ${category}`);
 
       // ✅ ถ้าเป็นรายจ่าย -> เช็คงบเดือนนั้นแล้วแจ้งเตือนทันทีถ้าเกิน
       if (type === "expense") {
-        const monthKey = occurredOn.slice(0, 7);
-        await checkBudgetAlert(monthKey);
+        const monthKey = occurredOn.slice(0, 7); // ดึงคีย์เดือนจากวันที่
+        await checkBudgetAlert(monthKey); // เช็คการเกินงบ
       }
 
-      // reset (keep type & date for faster input)
+      // รีเซ็ตค่า (แต่ยังคงเก็บประเภทและวันที่สำหรับการกรอกข้อมูลเร็วขึ้น)
       setAmount("");
       setCategory("");
       setNote("");
     } catch {
-      showToast("err", "บันทึกไม่สำเร็จ", "กรุณาลองใหม่อีกครั้ง");
+      showToast("err", "บันทึกไม่สำเร็จ", "กรุณาลองใหม่อีกครั้ง"); // แสดง Toast หากเกิดข้อผิดพลาด
     } finally {
-      setSaving(false);
+      setSaving(false); // เปลี่ยนสถานะการบันทึก
     }
   }
 
   return (
     <>
+      {/* แสดงผล Toast notification */}
       <Toast
         show={toast.show}
         tone={toast.tone}
@@ -129,6 +145,7 @@ export default function Entry() {
       />
 
       <div className="space-y-5">
+        {/* ส่วนของการบันทึกรายการ */}
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6 shadow-glow backdrop-blur-xl">
           <div className="pointer-events-none absolute -top-24 left-0 h-56 w-56 rounded-full bg-emerald-500/15 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 right-0 h-56 w-56 rounded-full bg-sky-500/15 blur-3xl" />
@@ -141,6 +158,7 @@ export default function Entry() {
           </div>
         </div>
 
+        {/* ปุ่มเลือกประเภทรายการ (รายจ่าย หรือ รายรับ) */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6 shadow-glow backdrop-blur-xl">
           <div className="flex items-center gap-2">
             <button
@@ -171,15 +189,30 @@ export default function Entry() {
             </button>
           </div>
 
+          {/* ฟอร์มสำหรับกรอกข้อมูลการบันทึก */}
           <form onSubmit={onSubmit} className="mt-5 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
                 <div className="text-sm font-bold text-slate-200">จำนวนเงิน</div>
                 <div className="mt-2">
                   <input
+                    type="text"
                     inputMode="decimal"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      // อนุญาตเฉพาะตัวเลข และจุดทศนิยม
+                      if (!/^\d*\.?\d*$/.test(value)) return;
+
+                      // จำกัดทศนิยมไม่เกิน 2 ตำแหน่ง
+                      if (value.includes(".")) {
+                        const [integer, decimal] = value.split(".");
+                        if (decimal.length > 2) return;
+                      }
+
+                      setAmount(value);
+                    }}
                     placeholder="เช่น 120.50"
                     className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-base font-extrabold outline-none focus:ring-2 focus:ring-sky-500/40"
                   />
@@ -189,6 +222,7 @@ export default function Entry() {
                 </div>
               </div>
 
+              {/* วันที่ */}
               <div className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
                 <div className="text-sm font-bold text-slate-200">วันที่</div>
                 <div className="mt-2">
@@ -203,6 +237,7 @@ export default function Entry() {
               </div>
             </div>
 
+            {/* หมวดหมู่ */}
             <div className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
               <div className="flex items-end justify-between gap-3">
                 <div>
@@ -237,6 +272,7 @@ export default function Entry() {
               </div>
             </div>
 
+            {/* หมายเหตุ */}
             <div className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
               <div className="text-sm font-bold text-slate-200">หมายเหตุ (ไม่บังคับ)</div>
               <div className="mt-2">
@@ -250,6 +286,7 @@ export default function Entry() {
               <div className="mt-2 text-xs text-slate-400">ช่วยให้ค้นหาในหน้าธุรกรรมได้ง่าย</div>
             </div>
 
+            {/* ปุ่มบันทึก */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-slate-300">
                 ถ้ารายจ่ายเดือนนี้เกินงบ ระบบจะแจ้งเตือนทันทีหลังบันทึก

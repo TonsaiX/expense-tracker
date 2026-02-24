@@ -1,30 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { useAuth } from "../auth/AuthProvider.jsx"; // ดึงฟังก์ชันการสมัครจาก AuthProvider
 
-function cls(...a) { return a.filter(Boolean).join(" "); }
+function cls(...a) { return a.filter(Boolean).join(" "); } // ฟังก์ชันช่วยรวม classNames ที่ไม่เป็นค่าว่าง
 
 export default function Register() {
-  const { register } = useAuth();
-  const nav = useNavigate();
+  const { register } = useAuth(); // ดึงฟังก์ชัน register จาก context
+  const nav = useNavigate(); // สำหรับการนำทางหลังจากสมัครสมาชิกสำเร็จ
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  // สถานะต่างๆ สำหรับการกรอกฟอร์ม
+  const [name, setName] = useState(""); // สถานะสำหรับชื่อ
+  const [email, setEmail] = useState(""); // สถานะสำหรับอีเมล
+  const [password, setPassword] = useState(""); // สถานะสำหรับรหัสผ่าน
+  const [busy, setBusy] = useState(false); // สถานะเมื่อกำลังสมัคร
+  const [err, setErr] = useState(""); // สถานะสำหรับข้อความผิดพลาด
 
+  // ฟังก์ชันเมื่อผู้ใช้กดปุ่มสมัครสมาชิก
   async function onSubmit(e) {
-    e.preventDefault();
-    setErr("");
-    setBusy(true);
+    e.preventDefault(); // หยุดการกระทำฟอร์มแบบเดิม
+    setErr(""); // รีเซ็ตข้อความผิดพลาด
+    setBusy(true); // ตั้งค่ากำลังสมัครสมาชิก
     try {
-      await register(name.trim(), email.trim(), password);
-      nav("/dashboard");
+      await register(name.trim(), email.trim(), password); // ทำการสมัครสมาชิก
+      nav("/dashboard"); // นำผู้ใช้ไปยังหน้าหลัก (Dashboard) หลังจากสมัครสมาชิกสำเร็จ
     } catch (e2) {
-      setErr("สมัครสมาชิกไม่สำเร็จ (อีเมลอาจถูกใช้แล้ว หรือข้อมูลไม่ถูกต้อง)");
+      setErr("สมัครสมาชิกไม่สำเร็จ (อีเมลอาจถูกใช้แล้ว หรือข้อมูลไม่ถูกต้อง)"); // หากเกิดข้อผิดพลาด แสดงข้อความผิดพลาด
     } finally {
-      setBusy(false);
+      setBusy(false); // เปลี่ยนสถานะกลับเมื่อเสร็จสิ้น
     }
   }
 
@@ -40,12 +42,14 @@ export default function Register() {
         </div>
       </div>
 
+      {/* แสดงข้อความผิดพลาด */}
       {err ? (
         <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-100">
           {err}
         </div>
       ) : null}
 
+      {/* ฟอร์มกรอกข้อมูล */}
       <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl space-y-4">
         <div>
           <div className="text-sm font-bold text-slate-200">ชื่อ</div>
@@ -86,6 +90,7 @@ export default function Register() {
           </div>
         </div>
 
+        {/* ปุ่มสมัครสมาชิก */}
         <button
           disabled={busy}
           className={cls(
@@ -97,6 +102,7 @@ export default function Register() {
           {busy ? "กำลังสมัคร..." : "สมัครสมาชิก"}
         </button>
 
+        {/* ลิงก์ไปยังหน้า Login ถ้ามีบัญชีแล้ว */}
         <div className="text-center text-sm text-slate-300">
           มีบัญชีแล้ว?{" "}
           <Link to="/login" className="font-extrabold text-sky-200 hover:underline">

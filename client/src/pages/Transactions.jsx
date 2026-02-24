@@ -1,16 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { api, fmtMoney } from "../api.js";
+import React, { useEffect, useMemo, useState } from "react"; // นำเข้า React และ Hooks ที่จำเป็น
+import { api, fmtMoney } from "../api.js"; // นำเข้า API และฟังก์ชันสำหรับจัดการเงิน
 
-function cls(...a) {
-  return a.filter(Boolean).join(" ");
-}
+function cls(...a) { return a.filter(Boolean).join(" "); } // ฟังก์ชันสำหรับรวมคลาส CSS
 
+// Toast component สำหรับแสดงข้อความแจ้งเตือน
 function Toast({ show, tone = "ok", title, message, onClose }) {
-  if (!show) return null;
+  if (!show) return null; // ถ้าไม่ต้องการแสดง Toast จะไม่แสดงอะไร
   const toneCls =
     tone === "ok"
       ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
-      : "border-rose-400/25 bg-rose-500/10 text-rose-100";
+      : "border-rose-400/25 bg-rose-500/10 text-rose-100"; // เลือกสีตาม tone
 
   return (
     <div className="fixed left-0 right-0 top-3 z-[60] px-4">
@@ -19,7 +18,7 @@ function Toast({ show, tone = "ok", title, message, onClose }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-sm font-extrabold">{title}</div>
-              <div className="mt-1 text-sm opacity-90">{message}</div>
+              <div className="mt-1 text-sm opacity-90">{message}</div> {/* แสดงข้อความ */}
             </div>
             <button
               onClick={onClose}
@@ -34,8 +33,9 @@ function Toast({ show, tone = "ok", title, message, onClose }) {
   );
 }
 
+// Badge component สำหรับแสดงประเภทของรายการ (รายรับ/รายจ่าย)
 function Badge({ type }) {
-  const isIncome = type === "income";
+  const isIncome = type === "income"; // เช็คว่าประเภทคือรายรับหรือรายจ่าย
   return (
     <span
       className={cls(
@@ -44,45 +44,49 @@ function Badge({ type }) {
         isIncome ? "text-emerald-200" : "text-rose-200"
       )}
     >
-      {isIncome ? "รายรับ" : "รายจ่าย"}
+      {isIncome ? "รายรับ" : "รายจ่าย"} {/* แสดงคำว่า "รายรับ" หรือ "รายจ่าย" */}
     </span>
   );
 }
 
+// ฟังก์ชันสำหรับแปลงวันที่ให้เป็นรูปแบบ ISO (YYYY-MM-DD)
 function toISODate(d) {
-  // YYYY-MM-DD local
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
+  return `${yyyy}-${mm}-${dd}`; // คืนค่าในรูปแบบ YYYY-MM-DD
 }
 
+// ฟังก์ชันสำหรับวันที่แรกของเดือนในรูปแบบ ISO
 function startOfMonthISO() {
   const d = new Date();
   const s = new Date(d.getFullYear(), d.getMonth(), 1);
-  return toISODate(s);
+  return toISODate(s); // คืนค่าวันที่แรกของเดือน
 }
+
+// ฟังก์ชันสำหรับวันที่แรกของเดือนถัดไปในรูปแบบ ISO
 function startOfNextMonthISO() {
   const d = new Date();
   const s = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-  return toISODate(s);
+  return toISODate(s); // คืนค่าวันที่แรกของเดือนถัดไป
 }
 
 export default function Transactions() {
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true); // สถานะการโหลดข้อมูล
+  const [err, setErr] = useState(""); // สถานะข้อผิดพลาด
 
-  // filters
-  const [type, setType] = useState("all"); // all | income | expense
-  const [q, setQ] = useState("");
-  const [start, setStart] = useState(startOfMonthISO());
-  const [end, setEnd] = useState(startOfNextMonthISO()); // exclusive
-  const [sort, setSort] = useState("date_desc"); // date_desc/date_asc/amount_desc/amount_asc
+  // filters (ตัวกรอง)
+  const [type, setType] = useState("all"); // กรองตามประเภท (รายรับ, รายจ่าย, หรือทั้งหมด)
+  const [q, setQ] = useState(""); // ค่าค้นหา
+  const [start, setStart] = useState(startOfMonthISO()); // วันที่เริ่มต้น
+  const [end, setEnd] = useState(startOfNextMonthISO()); // วันที่สิ้นสุด (ไม่รวมวัน)
 
-  const [items, setItems] = useState([]);
+  const [sort, setSort] = useState("date_desc"); // การเรียงลำดับ (ตามวันที่ หรือจำนวนเงิน)
+  const [items, setItems] = useState([]); // รายการข้อมูลธุรกรรม
 
-  const [toast, setToast] = useState({ show: false, tone: "ok", title: "", message: "" });
+  const [toast, setToast] = useState({ show: false, tone: "ok", title: "", message: "" }); // สำหรับแสดง Toast แจ้งเตือน
 
+  // ฟังก์ชันแสดงข้อความ Toast
   function showToast(tone, title, message) {
     setToast({ show: true, tone, title, message });
     window.clearTimeout(window.__toastTimer2);
@@ -91,70 +95,74 @@ export default function Transactions() {
     }, 2600);
   }
 
+  // ฟังก์ชันสำหรับโหลดข้อมูลธุรกรรม
   async function load() {
     setLoading(true);
     setErr("");
 
     try {
       const params = {};
-      if (type !== "all") params.type = type;
-      if (q.trim()) params.q = q.trim();
-      if (start) params.start = start;
-      if (end) params.end = end;
+      if (type !== "all") params.type = type; // กรองตามประเภท
+      if (q.trim()) params.q = q.trim(); // ค้นหาตามคำค้น
+      if (start) params.start = start; // กำหนดวันที่เริ่มต้น
+      if (end) params.end = end; // กำหนดวันที่สิ้นสุด
 
-      const r = await api.get("/api/transactions", { params });
-      setItems(r.data.items || []);
+      const r = await api.get("/api/transactions", { params }); // เรียกข้อมูลจาก API
+      setItems(r.data.items || []); // เก็บข้อมูลที่ได้จาก API
     } catch {
-      setErr("โหลดรายการธุรกรรมไม่สำเร็จ");
+      setErr("โหลดรายการธุรกรรมไม่สำเร็จ"); // หากเกิดข้อผิดพลาดให้แสดงข้อความ
     } finally {
-      setLoading(false);
+      setLoading(false); // ตั้งค่าสถานะการโหลดเป็น false
     }
   }
 
   useEffect(() => {
-    load();
+    load(); // เรียกฟังก์ชันโหลดข้อมูลเมื่อเริ่มต้น
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // refresh when filters change (debounce for search)
+  // ใช้ Debounce เมื่อฟิลเตอร์เปลี่ยนแปลง
   useEffect(() => {
     window.clearTimeout(window.__txFilterTimer);
     window.__txFilterTimer = window.setTimeout(() => {
-      load();
+      load(); // รีเฟรชข้อมูลเมื่อฟิลเตอร์เปลี่ยนแปลง
     }, 180);
 
     return () => window.clearTimeout(window.__txFilterTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, q, start, end]);
 
+  // การจัดเรียงข้อมูลตามตัวเลือกของผู้ใช้
   const sorted = useMemo(() => {
     const out = [...items];
     out.sort((a, b) => {
-      if (sort === "date_desc") return b.occurredOn.localeCompare(a.occurredOn);
-      if (sort === "date_asc") return a.occurredOn.localeCompare(b.occurredOn);
-      if (sort === "amount_desc") return b.amount - a.amount;
-      if (sort === "amount_asc") return a.amount - b.amount;
+      if (sort === "date_desc") return b.occurredOn.localeCompare(a.occurredOn); // เรียงตามวันที่ (ใหม่ไปเก่า)
+      if (sort === "date_asc") return a.occurredOn.localeCompare(b.occurredOn); // เรียงตามวันที่ (เก่าไปใหม่)
+      if (sort === "amount_desc") return b.amount - a.amount; // เรียงตามจำนวนเงิน (มากไปน้อย)
+      if (sort === "amount_asc") return a.amount - b.amount; // เรียงตามจำนวนเงิน (น้อยไปมาก)
       return 0;
     });
     return out;
   }, [items, sort]);
 
+  // สรุปข้อมูล (รายรับ, รายจ่าย, และยอดสุทธิ)
   const stats = useMemo(() => {
     const income = sorted.filter(x => x.type === "income").reduce((s, x) => s + x.amount, 0);
     const expense = sorted.filter(x => x.type === "expense").reduce((s, x) => s + x.amount, 0);
-    return { income, expense, net: income - expense };
+    return { income, expense, net: income - expense }; // คำนวณยอดสุทธิ
   }, [sorted]);
 
+  // ฟังก์ชันสำหรับลบรายการธุรกรรม
   async function onDelete(id) {
-    const ok = confirm("ต้องการลบรายการนี้ใช่ไหม? (ย้อนกลับไม่ได้)");
+    const ok = confirm("ต้องการลบรายการนี้ใช่ไหม? (ย้อนกลับไม่ได้)"); // ถามยืนยันการลบ
     if (!ok) return;
 
     try {
-      await api.delete(`/api/transactions/${id}`);
-      setItems((prev) => prev.filter((x) => x.id !== id));
+      await api.delete(`/api/transactions/${id}`); // ส่งคำขอลบไปยัง API
+      setItems((prev) => prev.filter((x) => x.id !== id)); // อัปเดตรายการหลังจากลบสำเร็จ
       showToast("ok", "ลบสำเร็จ", "ลบรายการออกจากระบบแล้ว");
     } catch {
-      showToast("err", "ลบไม่สำเร็จ", "ลองใหม่อีกครั้ง");
+      showToast("err", "ลบไม่สำเร็จ", "ลองใหม่อีกครั้ง"); // หากลบไม่สำเร็จ แสดงข้อผิดพลาด
     }
   }
 
@@ -165,7 +173,7 @@ export default function Transactions() {
         tone={toast.tone}
         title={toast.title}
         message={toast.message}
-        onClose={() => setToast((x) => ({ ...x, show: false }))}
+        onClose={() => setToast((x) => ({ ...x, show: false }))} // ปิด Toast เมื่อกดปุ่ม
       />
 
       <div className="space-y-5">
@@ -177,9 +185,7 @@ export default function Transactions() {
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-2xl sm:text-3xl font-extrabold tracking-tight">ธุรกรรม</div>
-              <div className="mt-1 text-sm text-slate-300">
-                ค้นหา • กรอง • ดูสรุป • ลบรายการ
-              </div>
+              <div className="mt-1 text-sm text-slate-300">ค้นหา • กรอง • ดูสรุป • ลบรายการ</div>
             </div>
 
             <button

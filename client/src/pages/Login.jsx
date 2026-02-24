@@ -1,29 +1,31 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { useAuth } from "../auth/AuthProvider.jsx"; // ใช้ context จาก AuthProvider เพื่อจัดการกับการเข้าสู่ระบบ
 
-function cls(...a) { return a.filter(Boolean).join(" "); }
+function cls(...a) { return a.filter(Boolean).join(" "); } // ฟังก์ชันช่วยรวม classNames ที่ไม่เป็นค่าว่าง
 
 export default function Login() {
-  const { login } = useAuth();
-  const nav = useNavigate();
+  const { login } = useAuth(); // ดึงฟังก์ชัน login จาก context
+  const nav = useNavigate(); // สำหรับการนำทางหลังจากเข้าสู่ระบบสำเร็จ
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  // สถานะต่างๆ สำหรับการกรอกฟอร์ม
+  const [email, setEmail] = useState(""); // สถานะสำหรับอีเมล
+  const [password, setPassword] = useState(""); // สถานะสำหรับรหัสผ่าน
+  const [busy, setBusy] = useState(false); // สถานะเมื่อกำลังเข้าสู่ระบบ
+  const [err, setErr] = useState(""); // สถานะสำหรับข้อความผิดพลาด
 
+  // ฟังก์ชันเมื่อผู้ใช้กดปุ่มเข้าสู่ระบบ
   async function onSubmit(e) {
-    e.preventDefault();
-    setErr("");
-    setBusy(true);
+    e.preventDefault(); // หยุดการกระทำฟอร์มแบบเดิม
+    setErr(""); // รีเซ็ตข้อความผิดพลาด
+    setBusy(true); // ตั้งค่ากำลังเข้าสู่ระบบ
     try {
-      await login(email.trim(), password);
-      nav("/dashboard");
+      await login(email.trim(), password); // ทำการเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน
+      nav("/dashboard"); // นำผู้ใช้ไปยังหน้าหลัก (Dashboard) หลังจากล็อกอินสำเร็จ
     } catch (e2) {
-      setErr("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      setErr("อีเมลหรือรหัสผ่านไม่ถูกต้อง"); // หากเกิดข้อผิดพลาด แสดงข้อความผิดพลาด
     } finally {
-      setBusy(false);
+      setBusy(false); // เปลี่ยนสถานะกลับเมื่อเสร็จสิ้น
     }
   }
 
@@ -39,12 +41,14 @@ export default function Login() {
         </div>
       </div>
 
+      {/* แสดงข้อความผิดพลาด */}
       {err ? (
         <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-100">
           {err}
         </div>
       ) : null}
 
+      {/* ฟอร์มกรอกข้อมูล */}
       <form onSubmit={onSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl space-y-4">
         <div>
           <div className="text-sm font-bold text-slate-200">อีเมล</div>
@@ -70,6 +74,7 @@ export default function Login() {
           />
         </div>
 
+        {/* ปุ่มเข้าสู่ระบบ */}
         <button
           disabled={busy}
           className={cls(
@@ -81,6 +86,7 @@ export default function Login() {
           {busy ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </button>
 
+        {/* ลิงก์ไปยังหน้า Register ถ้ายังไม่มีบัญชี */}
         <div className="text-center text-sm text-slate-300">
           ยังไม่มีบัญชี?{" "}
           <Link to="/register" className="font-extrabold text-sky-200 hover:underline">
